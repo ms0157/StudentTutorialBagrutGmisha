@@ -1,0 +1,115 @@
+import React, { useState, useEffect } from 'react';
+
+// Main App component
+const App = () => {
+  const [activeTab, setActiveTab] = useState('intro'); // State to manage active tab
+
+  // Content for each tab
+  const tabsContent = {
+    intro: {
+      title: 'מהי הבגרות הגמישה?',
+      content: (
+        <div className="space-y-4 text-gray-700">
+          <p className="text-lg font-semibold text-blue-700">ברוך הבא/ה!</p>
+          <p>מדריך זה נועד לסייע לך להכיר את המתווה החדש של הבגרות הגמישה ואת המערכת הדיגיטלית שבאמצעותה תבצע את המשימות. התפקיד שלך בתהליך הלמידה הוא משמעותי, וחשוב שתכיר את כל הכלים והתהליכים העומדים לרשותך.</p>
+          <h3 className="text-xl font-bold text-blue-800 mt-6">הציון הסופי שלך מורכב משלושה חלקים:</h3>
+          <ul className="list-disc list-inside space-y-2">
+            <li><span className="font-semibold">35% בחינה חיצונית:</span> בחינה רגילה שתתקיים בבית הספר.</li>
+            <li><span className="font-semibold">35% משימות מתוקשבות:</span> שתי משימות שתבצע/י במהלך השנה במערכת דיגיטלית. משימות אלו בוחנות מיומנויות ולא רק ידע.</li>
+            <li><span className="font-semibold">30% הערכה פנימית:</span> ציון הניתן על ידי בית הספר שלך.</li>
+          </ul>
+        </div>
+      ),
+    },
+    skills: {
+      title: 'מיומנויות שחשוב לפתח',
+      content: (
+        <div className="space-y-4 text-gray-700">
+          <p>המשימות המתוקשבות נועדו לעזור לך לפתח מיומנויות חשובות למאה ה-21. הנה כמה מהן:</p>
+          <ul className="list-disc list-inside space-y-2">
+            <li><span className="font-semibold">למידה עצמאית:</span> היכולת להציב לעצמך יעדים, לנהל את הזמן שלך ולחשוב על תהליך הלמידה.</li>
+            <li><span className="font-semibold">פתרון בעיות:</span> חשיבה ביקורתית, ניתוח נתונים והסקת מסקנות, והצגת טיעונים בצורה משכנעת.</li>
+            <li><span className="font-semibold">עבודת צוות ותקשורת:</span> היכולת לעבוד בשיתוף פעולה עם חברים לכיתה, לתקשר בצורה ברורה ולתת משוב.</li>
+            <li><span className="font-semibold">אוריינות דיגיטלית:</span> שימוש יעיל ובטוח בכלים דיגיטליים, איתור והערכת מידע ממקורות שונים וכיבוד זכויות יוצרים.</li>
+            <li><span className="font-semibold">יצירתיות ויוזמה:</span> פיתוח רעיונות חדשים, חשיבה מקורית ולקיחת יוזמה.</li>
+          </ul>
+        </div>
+      ),
+    },
+    system: {
+      title: 'התחברות וביצוע משימות',
+      content: (
+        <div className="space-y-4 text-gray-700">
+          <p>המשימות מתבצעות בפורטל דיגיטלי מיוחד של משרד החינוך. הנה מדריך פשוט כיצד להתחבר ולבצע את המשימות:</p>
+          <ol className="list-decimal list-inside space-y-3">
+            <li><span className="font-semibold">כניסה למערכת:</span> היכנס/י ל"בית הספר הוירטואלי" של משרד החינוך.</li>
+            <li><span className="font-semibold">מסך ראשי:</span> לאחר הכניסה, תגיע/י למסך הראשי של הבגרות הגמישה. במסך זה תוכל/י לראות את כל המשימות שהמורה הקצה/ה לך, כולל שם המשימה, תאריך ההגשה והסטטוס שלה (האם היא פתוחה, בטיפול או הוגשה).</li>
+            <li><span className="font-semibold">הכרות עם המשימה:</span> לאחר שתבחר/י במשימה, תגיע/י למסך המשימה. במסך זה תמצא/י את כל המידע שאתה צריך/ה:
+              <ul className="list-disc list-inside mr-5 space-y-1"> {/* Changed ml-5 to mr-5 for RTL */}
+                <li><span className="font-semibold">הסבר מפורט:</span> תיאור המשימה והדרישות.</li>
+                <li><span className="font-semibold">סרטון הדרכה:</span> סרטון שמסביר את המשימה ואת אופן הביצוע.</li>
+                <li><span className="font-semibold">שלבי המשימה:</span> פירוט השלבים השונים ותאריכי היעד לכל שלב.</li>
+                <li><span className="font-semibold">אזורי עבודה:</span> חלקים שיתופיים (כל חברי הצוות יכולים לערוך) וחלקים אישיים (רק אתה יכול לערוך).</li>
+              </ul>
+            </li>
+            <li><span className="font-semibold">שמירה והגשה:</span> במהלך העבודה על המשימה, חשוב מאוד ללחוץ על <span className="font-bold text-red-600">"שמירה"</span>, כיוון שהשמירה אינה אוטומטית. בסיום המשימה, עליך לבצע "הגשה". רק לאחר שכל חברי הצוות הגישו את המשימה, היא תועבר לבדיקת המורה.</li>
+          </ol>
+          <h3 className="text-xl font-bold text-blue-800 mt-6">מה קורה אם לא מרוצים מהציון?</h3>
+          <p>אם לא תהיה/י מרוצה מהציון שתקבל/י על שתי המשימות, תוכל/י לגשת לבחינה חיצונית על הנושאים של שתי המשימות גם יחד. לא ניתן לגשת לבחינה רק על נושא של משימה אחת.</p>
+        </div>
+      ),
+    },
+    help: {
+      title: 'קבלת עזרה',
+      content: (
+        <div className="space-y-4 text-gray-700">
+          <p>אם אתה נתקל/ת בבעיה טכנית או שאלות בנוגע למשימה, תוכל/י לקבל עזרה:</p>
+          <ul className="list-disc list-inside space-y-2">
+            <li><span className="font-semibold">הודעות למורה:</span> בפינה השמאלית העליונה של המערכת תראה/י אייקון של בועת דיבור, המיועד להודעות אישיות מהתלמידים למורה.</li>
+            <li><span className="font-semibold">הודעות מערכת:</span> אייקון הפעמון מיועד להודעות מערכת.</li>
+            <li><span className="font-semibold">מוקד תמיכה ארצי:</span> מוקד שירות זמין למענה טלפוני.</li>
+            <li><span className="font-semibold">טלפון:</span> 6552* או 073-3983960, שלוחה 9.</li>
+            <li><span className="font-semibold">שעות פעילות:</span> ימים א'-ה' בין 7:30-18:00 וביום ו' בין 8:00-14:30.</li>
+          </ul>
+        </div>
+      ),
+    },
+  };
+
+  return (
+    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 font-sans flex flex-col items-center">
+      <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-blue-600 text-white p-6 text-center rounded-t-xl">
+          <p className="text-lg font-semibold mb-1">הרב תחומי למדעים ולאמנויות עמל חדרה</p> {/* Added school name here */}
+          <h1 className="text-3xl font-extrabold mb-2">מדריך לתלמיד: הבגרות הגמישה</h1>
+          <p className="text-lg opacity-90">הכלים והמיומנויות שלך</p>
+        </div>
+
+        {/* Tabs Navigation */}
+        <div className="flex justify-around bg-blue-700 text-white text-sm sm:text-base md:text-lg lg:text-xl font-bold border-b-2 border-blue-800">
+          {Object.keys(tabsContent).map((tabKey) => (
+            <button
+              key={tabKey}
+              className={`flex-1 py-3 px-2 text-center transition-all duration-300 ease-in-out
+                ${activeTab === tabKey ? 'bg-blue-800 text-yellow-300 border-b-4 border-yellow-300' : 'hover:bg-blue-600 hover:text-white'}`}
+              onClick={() => setActiveTab(tabKey)}
+            >
+              {tabsContent[tabKey].title.split(':')[0]} {/* Display only the main title part */}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6 bg-white rounded-b-xl">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-blue-700 mb-4 text-center">
+            {tabsContent[activeTab].title}
+          </h2>
+          {tabsContent[activeTab].content}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
