@@ -1,0 +1,354 @@
+import React, { useState } from 'react';
+
+// Main App component
+const App = () => {
+  // State to manage the active tab
+  const [activeTab, setActiveTab] = useState('what-is-flexible-bagrut'); // Default active tab
+  const [reflectionInput, setReflectionInput] = useState('');
+  const [generatedReflection, setGeneratedReflection] = useState('');
+  const [isLoadingReflection, setIsLoadingReflection] = useState(false);
+  const [reflectionError, setReflectionError] = useState('');
+
+  // Function to generate reflection using Gemini API
+  const generateReflection = async () => {
+    if (!reflectionInput.trim()) {
+      setReflectionError('אנא הזן/י תיאור של המשימה כדי ליצור רפלקציה.');
+      return;
+    }
+
+    setIsLoadingReflection(true);
+    setGeneratedReflection('');
+    setReflectionError('');
+
+    try {
+      const prompt = `כתוב טיוטת רפלקציה לתלמיד/ה על המשימה הבאה: "${reflectionInput}". כלול התייחסות ללמידה על הנושא, אתגרים, ותובנות אישיות. כתוב בלשון יחיד, ובסגנון המתאים למשוב אישי של תלמיד.`;
+
+      let chatHistory = [];
+      chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+      const payload = { contents: chatHistory };
+      const apiKey = ""; // Canvas will automatically provide the API key
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (result.candidates && result.candidates.length > 0 &&
+        result.candidates[0].content && result.candidates[0].content.parts &&
+        result.candidates[0].content.parts.length > 0) {
+        const text = result.candidates[0].content.parts[0].text;
+        setGeneratedReflection(text);
+      } else {
+        setReflectionError('אירעה שגיאה ביצירת הרפלקציה. אנא נסה/י שוב.');
+        console.error('Unexpected API response structure:', result);
+      }
+    } catch (error) {
+      setReflectionError('שגיאה בתקשורת עם השרת. אנא בדוק/י את חיבור האינטרנט ונסה/י שוב.');
+      console.error('Error generating reflection:', error);
+    } finally {
+      setIsLoadingReflection(false);
+    }
+  };
+
+
+  // Content for each tab
+  const tabContent = {
+    'what-is-flexible-bagrut': (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-blue-700 mb-4">מהי הבגרות הגמישה?</h2>
+        <p className="mb-3">הבגרות הגמישה היא מתווה בחינה חדשני. הציון הסופי שלך מורכב משלושה חלקים:</p>
+        <ul className="list-disc list-inside space-y-2">
+          <li><strong>35% בחינה חיצונית:</strong> בחינה רגילה שתתקיים בבית הספר.</li>
+          <li><strong>35% משימות מתוקשבות:</strong> שתי משימות שתבצע/י במהלך השנה במערכת דיגיטלית. משימות אלו בוחנות מיומנויות ולא רק ידע.</li>
+          <li><strong>30% הערכה פנימית:</strong> ציון הניתן על ידי בית הספר שלך.</li>
+        </ul>
+      </div>
+    ),
+    'skills-to-develop': (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-blue-700 mb-4">המיומנויות שחשוב לפתח</h2>
+        <p className="mb-3">המשימות המתוקשבות נועדו לעזור לך לפתח מיומנויות חשובות למאה ה-21. הנה כמה מהן:</p>
+        <ul className="list-disc list-inside space-y-2">
+          <li><strong>למידה עצמאית:</strong> היכולת להציב לעצמך יעדים, לנהל את הזמן שלך ולחשוב על תהליך הלמידה.</li>
+          <li><strong>פתרון בעיות:</strong> חשיבה ביקורתית, ניתוח נתונים והסקת מסקנות, והצגת טיעונים בצורה משכנעת.</li>
+          <li><strong>עבודת צוות ותקשורת:</strong> היכולת לעבוד בשיתוף פעולה עם חברים לכיתה, לתקשר בצורה ברורה ולתת משוב.</li>
+          <li><strong>אוריינות דיגיטלית:</strong> שימוש יעיל ובטוח בכלים דיגיטליים, איתור והערכת מידע ממקורות שונים וכיבוד זכויות יוצרים.</li>
+          <li><strong>יצירתיות ויוזמה:</strong> פיתוח רעיונות חדשים, חשיבה מקורית ולקיחת יוזמה.</li>
+        </ul>
+      </div>
+    ),
+    'system-connection': (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-blue-700 mb-4">התחברות למערכת וביצוע המשימות</h2>
+        <p className="mb-3">המשימות מתבצעות בפורטל דיגיטלי מיוחד של משרד החינוך. הנה מדריך פשוט כיצד להתחבר ולבצע את המשימות:</p>
+        <ol className="list-decimal list-inside space-y-3">
+          <li><strong>כניסה למערכת:</strong> היכנס/י ל"בית הספר הוירטואלי" של משרד החינוך.</li>
+          <li><strong>מסך ראשי:</strong> לאחר הכניסה, תגיע/י למסך הראשי של הבגרות הגמישה. במסך זה תוכל/י לראות את כל המשימות שהמורה הקצה/ה לך, כולל שם המשימה, תאריך ההגשה והסטטוס שלה (האם היא פתוחה, בטיפול או הוגשה).</li>
+          <li><strong>הכרות עם המשימה:</strong> לאחר שתבחר/י במשימה, תגיע/י למסך המשימה. במסך זה תמצא/י את כל המידע שאתה צריך/ה:
+            <ul className="list-disc list-inside ml-5 mt-2 space-y-1">
+              <li>הסבר מפורט: תיאור המשימה והדרישות.</li>
+              <li>סרטון הדרכה: סרטון שמסביר את המשימה ואת אופן הביצוע.</li>
+              <li>שלבי המשימה: פירוט השלבים השונים ותאריכי היעד לכל שלב.</li>
+              <li>אזורי עבודה: חלקים שיתופיים (כל חברי הצוות יכולים לערוך) וחלקים אישיים (רק אתה יכול לערוך).</li>
+            </ul>
+          </li>
+          <li><strong>שמירה והגשה:</strong> במהלך העבודה על המשימה, חשוב מאוד ללחוץ על "שמירה", כיוון שהשמירה אינה אוטומטית. בסיום המשימה, עליך לבצע "הגשה". רק לאחר שכל חברי הצוות הגישו את המשימה, היא תועבר לבדיקת המורה.</li>
+        </ol>
+      </div>
+    ),
+    'grade-satisfaction': (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-blue-700 mb-4">מה קורה אם לא מרוצים מהציון?</h2>
+        <p className="mb-3">אם לא תהיה/י מרוצה מהציון שתקבל/י על שתי המשימות, תוכל/י לגשת לבחינה חיצונית על הנושאים של שתי המשימות גם יחד. לא ניתן לגשת לבחינה רק על נושא של משימה אחת.</p>
+      </div>
+    ),
+    'getting-help': (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-blue-700 mb-4">קבלת עזרה</h2>
+        <p className="mb-3">אם אתה נתקל/ת בבעיה טכנית או שאלות בנוגע למשימה, תוכל/י לקבל עזרה:</p>
+        <ul className="list-disc list-inside space-y-2">
+          <li><strong>הודעות למורה:</strong> בפינה השמאלית העליונה של המערכת תראה/י אייקון של בועת דיבור, המיועד להודעות אישיות מהתלמידים למורה.</li>
+          <li><strong>הודעות מערכת:</strong> אייקון הפעמון מיועד להודעות מערכת.</li>
+          <li><strong>מוקד תמיכה ארצי:</strong> מוקד שירות זמין למענה טלפוני.
+            <ul className="list-circle list-inside ml-5 mt-1 space-y-1">
+              <li><strong>טלפון:</strong> 6552* או 073-3983960, שלוחה 9.</li>
+              <li><strong>שעות פעילות:</strong> ימים א'-ה' בין 7:30-18:00 וביום ו' בין 8:00-14:30.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    ),
+    'task-types': (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-blue-700 mb-4">סוגי משימות: מיומנויות ותהליכי עבודה</h2>
+        <p className="mb-4">בלשונית זו, נציג פירוט של מגוון המשימות שתוכלו לבצע, עם דגש על המיומנויות שתפתחו בכל אחת מהן ושלבי העבודה המרכזיים. הבחירה במשימה המתאימה תאפשר לכם להעמיק בנושא הנלמד תוך פיתוח יכולות חשובות לעתיד.</p>
+
+        {/* Task Type 1: נייר עמדה */}
+        <div className="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <h3 className="text-xl font-semibold text-blue-600 mb-2">1. נייר עמדה - משימת צוות</h3>
+          <p className="mb-2">משימה זו נועדה לפתח את יכולתכם לחקור נושא לעומק, לנתח נקודות מבט שונות ולהגיע להסכמה קבוצתית.</p>
+          <h4 className="font-medium text-blue-500 mb-1">מיומנויות שתשפרו:</h4>
+          <ul className="list-disc list-inside ml-4 mb-2">
+            <li><strong>חשיבה ביקורתית:</strong> ניתוח עמדות שונות, זיהוי טיעונים חזקים וחלשים.</li>
+            <li><strong>מודעות חברתית - עבודת צוות:</strong> שיתוף פעולה, הקשבה הדדית והגעה לפשרה.</li>
+            <li><strong>אוריינות לשונית:</strong> ניסוח ברור, ארגון רעיונות בכתב והבעת עמדה מנומקת.</li>
+            <li><strong>אוריינות מידע והערכה:</strong> איסוף מידע ממקורות מגוונים והערכת מהימנותם.</li>
+          </ul>
+          <h4 className="font-medium text-blue-500 mb-1">תהליך העבודה:</h4>
+          <ul className="list-decimal list-inside ml-4">
+            <li><strong>בחירת נושא/סוגיה/דילמה:</strong> בחרו נושא הקשור לחומר הנלמד, שיש בו פוטנציאל לנקודות מבט שונות.</li>
+            <li><strong>חקירה וניתוח:</strong> חקרו את הנושא לעומק, אספו מידע ונתחו עמדות בעד ונגד או פרשנויות שונות.</li>
+            <li><strong>דיון וגיבוש פשרה:</strong> שתפו פעולה עם חברי הצוות, קיימו דיון פתוח והגיעו לפשרה מוסכמת שתשקף את עמדת הצוות.</li>
+            <li><strong>משוב אישי (רפלקציה):</strong> כתבו משוב אישי שיציין את התובנות שלכם מהתהליך, כולל מה למדתם על הנושא ועל עבודת צוות.</li>
+          </ul>
+        </div>
+
+        {/* Task Type 2: עיתון שיתופי */}
+        <div className="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <h3 className="text-xl font-semibold text-blue-600 mb-2">2. עיתון שיתופי - משימה צוותית</h3>
+          <p className="mb-2">פרויקט יצירתי המשלב כתיבה, מחקר ועבודת צוות, ומאפשר לכם להציג נושאים מתוכנית הלימודים בפורמט מעניין.</p>
+          <h4 className="font-medium text-blue-500 mb-1">מיומנויות שתשפרו:</h4>
+          <ul className="list-disc list-inside ml-4 mb-2">
+            <li><strong>אוריינות לשונית:</strong> כתיבה בסגנונות שונים (חדשות, דעה, ראיון), עריכה לשונית.</li>
+            <li><strong>חשיבה ביקורתית:</strong> בחירת נושאים, ניתוח אירועים וגיבוש עמדות אישיות ומשותפות.</li>
+            <li><strong>מודעות חברתית - עבודת צוות:</strong> חלוקת תפקידים, תיאום בין כותבים שונים וגיבוש תוצר משותף.</li>
+          </ul>
+          <h4 className="font-medium text-blue-500 mb-1">תהליך העבודה:</h4>
+          <ul className="list-decimal list-inside ml-4">
+            <li><strong>בחירת נושא העיתון:</strong> בחרו נושא מרכזי לכל העיתון מתוך תוכנית הלימודים.</li>
+            <li><strong>כתיבת כתבה מרכזית משותפת:</strong> כתבה שתציג את הנושא המרכזי של העיתון ותשקף עבודה משותפת.</li>
+            <li><strong>כתיבת כתבת משנה אישית:</strong> כל חבר צוות יכתוב כתבת משנה אישית (טור דעה, ראיון, יומן מסע, מכתב למערכת, מדור וכו') הקשורה לנושא המרכזי.</li>
+            <li><strong>"דבר העורכים" משותף:</strong> סכמו את העבודה והציגו תובנה משותפת שעולה מהעיתון כולו.</li>
+            <li><strong>משוב אישי (רפלקציה):</strong> כתבו משוב אישי על המשימה, התובנות שלכם ועל תהליך הלמידה.</li>
+          </ul>
+        </div>
+
+        {/* Task Type 3: הסכת (פודקאסט) */}
+        <div className="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <h3 className="text-xl font-semibold text-blue-600 mb-2">3. הסכת (פודקאסט) - משימת צוות/אישית</h3>
+          <p className="mb-2">משימה חדשנית ויצירתית המאפשרת לכם לחקור נושא, לפתח עמדה ולהציג אותה בפורמט אודיו מרתק, בליווי דף אינטרנט.</p>
+          <h4 className="font-medium text-blue-500 mb-1">מיומנויות שתשפרו:</h4>
+          <ul className="list-disc list-inside ml-4 mb-2">
+            <li><strong>אוריינות לשונית:</strong> ניסוח בהיר, כתיבת תסריט, הקשבה ודיבור שוטף.</li>
+            <li><strong>חשיבה ביקורתית:</strong> ניתוח סוגיות, גיבוש עמדות והצגתן בצורה משכנעת.</li>
+            <li><strong>חשיבה יצירתית:</strong> פיתוח רעיונות מקוריים לתוכן ההסכת והצגתו.</li>
+            <li><strong>אוריינות דיגיטלית:</strong> שימוש בכלים דיגיטליים ליצירה ועריכת אודיו, בניית דף אינטרנט.</li>
+          </ul>
+          <h4 className="font-medium text-blue-500 mb-1">תהליך העבודה:</h4>
+          <ul className="list-decimal list-inside ml-4">
+            <li><strong>יצירת דף אינטרנט:</strong> בנו דף אינטרנט שישמש כבסיס להצגת ההסכת.</li>
+            <li><strong>בחירת נושא/סוגיה/דילמה (שיתופי):</strong> בחרו נושא מעניין שישמש כפרק אחד מסדרת הסכתים.</li>
+            <li><strong>פרשנות/עמדה/תובנה (אישי):</strong> כל משתתף יציג את הפרשנות/עמדה/תובנה האישית שלו בנושא.</li>
+            <li><strong>מקטעים (שיתופי):</strong> חלקו את ההסכת למקטעים וצרו תוכן משותף.</li>
+            <li><strong>הסכת (שיתופי):</strong> הקליטו ועצבו את ההסכת עצמו, וודאו זרימה וחיבור בין החלקים.</li>
+            <li><strong>משוב אישי (רפלקציה):</strong> כתבו משוב אישי על תהליך יצירת ההסכת, האתגרים והתובנות שלכם.</li>
+          </ul>
+        </div>
+
+        {/* Task Type 4: עיתון אישי */}
+        <div className="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <h3 className="text-xl font-semibold text-blue-600 mb-2">4. עיתון אישי - משימה אישית</h3>
+          <p className="mb-2">משימה אישית המעודדת ביטוי עצמי, חקירה מעמיקה של נושאים וכתיבה עיתונאית בסגנונות שונים.</p>
+          <h4 className="font-medium text-blue-500 mb-1">מיומנויות שתשפרו:</h4>
+          <ul className="list-disc list-inside ml-4 mb-2">
+            <li><strong>אוריינות לשונית:</strong> כתיבה חדשותית, דעה אישית, עריכה לשונית.</li>
+            <li><strong>אוריינות מידע והערכה:</strong> איסוף מידע, סינון והערכה של מקורות.</li>
+            <li><strong>חשיבה ביקורתית:</strong> בחירת נושאים, ניתוחם וגיבוש עמדה אישית.</li>
+            <li><strong>הכוונה עצמית:</strong> ניהול זמן, תכנון משימה וביצוע עצמאי.</li>
+          </ul>
+          <h4 className="font-medium text-blue-500 mb-1">תהליך העבודה:</h4>
+          <ul className="list-decimal list-inside ml-4">
+            <li><strong>כתבה חדשותית מרכזית:</strong> כתבו כתבה שתציג נושא חדשותי מרכזי, בהתבסס על מחקר.</li>
+            <li><strong>כתבת משנה:</strong> הוסיפו כתבת משנה בסגנון שונה (לדוגמה: טור דעה, ריאיון קצר, סיפור אישי).</li>
+            <li><strong>"דבר העורך":</strong> כתבו "דבר העורך" אישי, שבו תציגו את עמדתכם ותובנותיכם מהעבודה.</li>
+            <li><strong>משוב אישי (רפלקציה):</strong> סכמו את חווית הלמידה, האתגרים והתובנות האישיות שלכם מהמשימה.</li>
+          </ul>
+        </div>
+
+        {/* Task Type 5: פרזנטציה */}
+        <div className="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <h3 className="text-xl font-semibold text-blue-600 mb-2">5. פרזנטציה - משימה אישית</h3>
+          <p className="mb-2">הזדמנות להציג נושא בפני קהל, לשפר את יכולות התקשורת וההצגה שלכם תוך שימוש בכלים דיגיטליים.</p>
+          <h4 className="font-medium text-blue-500 mb-1">מיומנויות שתשפרו:</h4>
+          <ul className="list-disc list-inside ml-4 mb-2">
+            <li><strong>אוריינות לשונית:</strong> ניסוח ברור ורהוט, דיבור בפני קהל, התאמת השפה לנושא ולקהל.</li>
+            <li><strong>אוריינות יצירתית:</strong> תכנון מצגת אסתטית ומרתקת.</li>
+            <li><strong>חשיבה דיגיטלית:</strong> שימוש יעיל בתוכנות מצגות וכלים דיגיטליים נוספים.</li>
+            <li><strong>הכוונה עצמית:</strong> תכנון מפורט של המצגת, חלוקת זמנים ותרגול.</li>
+          </ul>
+          <h4 className="font-medium text-blue-500 mb-1">תהליך העבודה:</h4>
+          <ul className="list-decimal list-inside ml-4">
+            <li><strong>הצגת נושא/סוגיה/דילמה:</strong> בחרו נושא מעניין ורלוונטי שתרצו להציג.</li>
+            <li><strong>פירוט תכנון השקפים:</strong> תכננו בקפידה את מבנה המצגת ואת תוכן כל שקף.</li>
+            <li><strong>הכנת המצגת:</strong> בנו את המצגת בפועל, תוך שימוש בעיצוב מושך, תמונות, גרפים וכדומה.</li>
+            <li><strong>יום הפרזנטציה:</strong> הציגו את המצגת בפני הקהל.</li>
+            <li><strong>משוב אישי (רפלקציה):</strong> כתבו על החוויה, מה למדתם על עצמכם ועל יכולות ההצגה שלכם.</li>
+          </ul>
+        </div>
+
+        {/* Task Type 6: תוצר יצירתי */}
+        <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <h3 className="text-xl font-semibold text-blue-600 mb-2">6. תוצר יצירתי - משימה אישית</h3>
+          <p className="mb-2">משימה המאפשרת לכם לבטא הבנה מעמיקה של נושא דרך יצירה אמנותית, תוך שילוב מחקר ופרשנות אישית.</p>
+          <h4 className="font-medium text-blue-500 mb-1">מיומנויות שתשפרו:</h4>
+          <ul className="list-disc list-inside ml-4 mb-2">
+            <li><strong>אוריינות לשונית:</strong> ניסוח הקשר בין היצירה לפרשנות.</li>
+            <li><strong>חשיבה ביקורתית:</strong> ניתוח מקורות וגיבוש פרשנות אישית.</li>
+            <li><strong>חשיבה יצירתית:</strong> פיתוח רעיון אמנותי מקורי וביצועו.</li>
+            <li><strong>הכוונה עצמית:</strong> ניהול פרויקט אמנותי מתחילתו ועד סופו.</li>
+          </ul>
+          <h4 className="font-medium text-blue-500 mb-1">תהליך העבודה:</h4>
+          <ul className="list-decimal list-inside ml-4">
+            <li><strong>בחירת נושא/סוגיה/דילמה:</strong> בחרו נושא שמעניין אתכם ושיש לו פוטנציאל לביטוי אמנותי.</li>
+            <li><strong>מחקר:</strong> חקרו את הנושא על בסיס שני מקורות לפחות, כדי להבין אותו לעומק.</li>
+            <li><strong>פרשנות באמצעות תוצר אמנותי:</strong> צרו תוצר אמנותי (כרזה, פסל, קומיקס, ציור וכו') המבטא את הפרשנות האישית שלכם לנושא.</li>
+            <li><strong>הצגת הקשר:</strong> הסבירו בכתב את הקשר בין הפרשנות לתוצר, וכיצד היא מתבטאת בבחירת הצבעים, החומרים ורכיבים נוספים.</li>
+            <li><strong>משוב אישי (רפלקציה):</strong> כתבו משוב אישי על החוויה היצירתית, התובנות והלמידה שהתרחשו במהלך המשימה.</li>
+          </ul>
+        </div>
+      </div>
+    ),
+    'reflection-assistant': (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-blue-700 mb-4">✨ עוזר רפלקציה ✨</h2>
+        <p className="mb-4">כאן תוכל/י לקבל עזרה בכתיבת המשוב האישי שלך. תאר/י בקצרה את המשימה ואת התובנות הראשוניות שלך, ומודל השפה יעזור לך לנסח טיוטת רפלקציה.</p>
+
+        <div className="mb-4">
+          <label htmlFor="reflectionInput" className="block text-gray-700 text-lg font-medium mb-2">
+            תיאור המשימה והתובנות הראשוניות שלך:
+          </label>
+          <textarea
+            id="reflectionInput"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-800 h-32 resize-y"
+            placeholder="לדוגמה: 'כתבתי נייר עמדה על שימוש בבינה מלאכותית בחינוך. למדתי על היתרונות והחסרונות ועל החשיבות של עבודת צוות.' "
+            value={reflectionInput}
+            onChange={(e) => setReflectionInput(e.target.value)}
+            dir="rtl"
+          ></textarea>
+        </div>
+
+        <button
+          onClick={generateReflection}
+          disabled={isLoadingReflection}
+          className={`
+            w-full py-3 px-6 rounded-lg text-lg font-semibold transition-all duration-300 ease-in-out
+            ${isLoadingReflection
+              ? 'bg-blue-300 text-blue-100 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg'
+            }
+          `}
+        >
+          {isLoadingReflection ? 'יוצר רפלקציה...' : '✨ צור רפלקציה ✨'}
+        </button>
+
+        {reflectionError && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center" dir="rtl">
+            {reflectionError}
+          </div>
+        )}
+
+        {generatedReflection && (
+          <div className="mt-6 p-5 bg-blue-50 border border-blue-200 rounded-lg shadow-inner" dir="rtl">
+            <h3 className="text-xl font-semibold text-blue-600 mb-3">טיוטת הרפלקציה שלך:</h3>
+            <p className="text-gray-800 whitespace-pre-wrap">{generatedReflection}</p>
+          </div>
+        )}
+      </div>
+    ),
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 font-inter text-right flex flex-col items-center p-4 sm:p-6 lg:p-8" dir="rtl">
+      {/* Tailwind CSS CDN */}
+      <script src="https://cdn.tailwindcss.com"></script>
+      {/* Google Fonts - Inter */}
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+      {/* Header Banner */}
+      <header className="w-full max-w-4xl bg-blue-800 text-white p-4 sm:p-6 rounded-t-xl shadow-lg">
+        <h1 className="text-xl sm:text-2xl font-bold text-center mb-2">בית הספר הרב תחומי למדעים ולאמנויות עמל חדרה</h1>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-center">מדריך לתלמיד: הבגרות הגמישה - הכלים והמיומנויות שלך</h2>
+      </header>
+
+      {/* Tab Navigation */}
+      <nav className="w-full max-w-4xl bg-blue-700 rounded-b-xl shadow-md mb-6 overflow-x-auto">
+        <ul className="flex flex-nowrap justify-start sm:justify-center py-3 px-2">
+          {Object.keys(tabContent).map((tabKey) => (
+            <li key={tabKey} className="flex-shrink-0 mx-1">
+              <button
+                onClick={() => setActiveTab(tabKey)}
+                className={`
+                  py-2 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-medium whitespace-nowrap
+                  transition-all duration-300 ease-in-out
+                  ${activeTab === tabKey
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'bg-blue-600 text-blue-100 hover:bg-blue-500 hover:text-white'
+                  }
+                `}
+              >
+                {tabKey === 'what-is-flexible-bagrut' && 'מהי הבגרות הגמישה?'}
+                {tabKey === 'skills-to-develop' && 'מיומנויות לפתח'}
+                {tabKey === 'system-connection' && 'התחברות וביצוע משימות'}
+                {tabKey === 'grade-satisfaction' && 'אי שביעות רצון מציון'}
+                {tabKey === 'getting-help' && 'קבלת עזרה'}
+                {tabKey === 'task-types' && 'סוגי משימות'}
+                {tabKey === 'reflection-assistant' && '✨ עוזר רפלקציה ✨'}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Content Area */}
+      <main className="w-full max-w-4xl bg-white rounded-xl shadow-lg p-4 sm:p-6">
+        {tabContent[activeTab]}
+      </main>
+    </div>
+  );
+};
+
+export default App;
